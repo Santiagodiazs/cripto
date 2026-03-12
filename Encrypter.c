@@ -2,15 +2,15 @@
 
 int main(int argc, char* argv[]) {
 
-    if(argc != 4) {
-        printf("Use: <Cypher_type (-r, -t, -v)> <File_path> <Key>\n");
+    if(argc != 5) {
+        printf("Use: <Cypher_type (-r, -t, -v)> <Encrypt/Decrypt (-e, -d)> <File_path> <Key>\n");
         return 1;
     }
 
     int opt;
     
     // Parse the cipher type option
-    while((opt = getopt(argc, argv, "rvt")) != -1) {
+    while((opt = getopt(argc, argv, "rvted")) != -1) {
         switch(opt) {
             case 'r':
                 cypherType = ROTATING;
@@ -21,8 +21,15 @@ int main(int argc, char* argv[]) {
             case 't':
                 cypherType = TRANSPOSITION;
                 break;
+            case 'd':
+                encryptDecrypt = DECRYPT;
+                break;
+            case 'e':
+                encryptDecrypt = ENCRYPT;
+                break;
             case '?':
                 printf("Available cyphers -r (Rotating) -v (Vigenere) -t (Transposition)\n");
+                printf("Available operations -e (Encrypt) -d (Decrypt)\n");
                 return 1;
         }
     }
@@ -30,14 +37,14 @@ int main(int argc, char* argv[]) {
     // Get file path and key from remaining arguments
     if(optind + 1 >= argc) {
         printf("Error: Missing file path and/or key\n");
-        printf("Use: <Cypher_type (-r, -t, -v)> <File_path> <Key>\n");
+        printf("Use: <Cypher_type (-r, -t, -v)> <Encrypt/Decrypt (-e, -d)> <File_path> <Key>\n");
         return 1;
     }
     
     filePath = argv[optind];     // First remaining argument is file path
     key = argv[optind + 1];      // Second remaining argument is key
 
-    FILE* file = fopen(filePath, "r+");
+    file = fopen(filePath, "r+");
     if(file == NULL) {
         printf("Error opening the file, make sure it exists");
         return 1;
@@ -46,23 +53,38 @@ int main(int argc, char* argv[]) {
     if(cypherType == ROTATING) {
         int realKey = atoi(key);
         if(realKey == 0) {
-            printf("Please enter a number as key for the rotating cypher");
-            return 1;
+                printf("Please enter a number as key for the rotating cypher");
+                return 1;
         }
-
         char c;
-        while((c = fgetc(file)) != EOF) {
-             if(c >= 'a' && c <= 'z'){
-                c = (c - 'a' + realKey) % 26 + 'a';
-                fputs(&c, file);
-             }
-             if(c >= 'A' && c <= 'Z') {
-                c = (c - 'A' + realKey) % 26 + 'A';
-                fputs(&c, file);
-             }
+        long position;
+        if(encryptDecrypt == ENCRYPT) {
+            while((c = fgetc(file)) != EOF) {
+                rotate(c, realKey, position);
+            }
+        } else {
+            while((c = fgetc(file)) != EOF) {
+                rotate(c, 26 - realKey, position);
+            }
         }
+        
     }
 
     fclose(file);
     return 0;
+}
+
+char rotate(char c, int key, int position) {
+    char encrypted = c;
+                if(c >= 'a' && c <= 'z'){
+                    encrypted = (c - 'a' + key) % 26 + 'a';
+                }
+                else if(c >= 'A' && c <= 'Z') {
+                    encrypted = (c - 'A' + key) % 26 + 'A';
+                }
+            
+                position = ftell(file);     // Save current position
+                fseek(file, position - 1, SEEK_SET);  // Go back to overwrite
+                fputc(encrypted, file);     // Write encrypted character
+                fseek(file, position, SEEK_SET);      // Return to reading position
 }

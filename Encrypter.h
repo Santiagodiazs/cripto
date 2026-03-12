@@ -11,8 +11,11 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 
 enum cypherTypes {ROTATING, TRANSPOSITION, VIGENERE};
+enum enctryptDecrypt {ENCRYPT, DECRYPT};
 
 int cypherType;
+int encryptDecrypt;
+FILE* file;
 char* filePath;
 char* key;
 
