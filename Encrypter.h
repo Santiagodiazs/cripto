@@ -19,4 +19,6 @@ FILE* file;
 char* filePath;
 char* key;
 
+void rotate(char c, int key, long* position);
+
 #endif // ENCRYPTER_H

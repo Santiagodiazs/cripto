@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
                 return 1;
         }
         char c;
-        long position;
+        long* position = malloc(sizeof(long));
         if(encryptDecrypt == ENCRYPT) {
             while((c = fgetc(file)) != EOF) {
                 rotate(c, realKey, position);
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-char rotate(char c, int key, int position) {
+void rotate(char c, int key, long* position) {
     char encrypted = c;
                 if(c >= 'a' && c <= 'z'){
                     encrypted = (c - 'a' + key) % 26 + 'a';
@@ -83,8 +83,8 @@ char rotate(char c, int key, int position) {
                     encrypted = (c - 'A' + key) % 26 + 'A';
                 }
             
-                position = ftell(file);     // Save current position
-                fseek(file, position - 1, SEEK_SET);  // Go back to overwrite
+                *position = ftell(file);     // Save current position
+                fseek(file, *position - 1, SEEK_SET);  // Go back to overwrite
                 fputc(encrypted, file);     // Write encrypted character
-                fseek(file, position, SEEK_SET);      // Return to reading position
+                fseek(file, *position, SEEK_SET);      // Return to reading position
 }
