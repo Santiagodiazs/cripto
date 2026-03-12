@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 // External declarations for getopt (may be needed on some systems)
 extern char *optarg;

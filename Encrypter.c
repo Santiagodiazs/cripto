@@ -1,5 +1,7 @@
 #include "Encrypter.h"
 
+
+
 int main(int argc, char* argv[]) {
 
     if(argc != 5) {
@@ -44,12 +46,15 @@ int main(int argc, char* argv[]) {
     filePath = argv[optind];     // First remaining argument is file path
     key = argv[optind + 1];      // Second remaining argument is key
 
+    long* position = malloc(sizeof(long));
+
     file = fopen(filePath, "r+");
     if(file == NULL) {
         printf("Error opening the file, make sure it exists");
         return 1;
     }
 
+    //Logic for rotating cypher
     if(cypherType == ROTATING) {
         int realKey = atoi(key);
         if(realKey == 0) {
@@ -57,7 +62,7 @@ int main(int argc, char* argv[]) {
                 return 1;
         }
         char c;
-        long* position = malloc(sizeof(long));
+        
         if(encryptDecrypt == ENCRYPT) {
             while((c = fgetc(file)) != EOF) {
                 rotate(c, realKey, position);
@@ -67,7 +72,38 @@ int main(int argc, char* argv[]) {
                 rotate(c, 26 - realKey, position);
             }
         }
-        
+    }
+
+    if(cypherType == VIGENERE) {
+        int keyLength = strlen(key);
+        for(int i = 0; i < keyLength; i++) {
+            if(isalpha(key[i])) {
+                key[i] = tolower(key[i]); 
+            } else {
+                printf("Please enter a valid key for the Vigenere cypher (only letters)");
+                return 1;
+        }
+        char c;
+        int keyIndex = 0;
+        if(encryptDecrypt == ENCRYPT) {
+            
+            while((c = fgetc(file)) != EOF) {
+                if(isalpha(c)) {
+                    int keyShift = key[keyIndex % keyLength] - 'a';
+                    rotate(c, keyShift, position);
+                    keyIndex++;
+                }
+            }
+        } else {
+            while((c = fgetc(file)) != EOF) {
+                if(isalpha(c)) {
+                    int keyShift = key[keyIndex % keyLength] - 'a';
+                    rotate(c, 26 - keyShift, position);
+                    keyIndex++;
+                }
+            }
+        }
+    }
     }
 
     fclose(file);
