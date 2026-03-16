@@ -1,7 +1,5 @@
 #include "Encrypter.h"
 
-
-
 int main(int argc, char* argv[]) {
 
     if(argc != 5) {
@@ -53,8 +51,10 @@ int main(int argc, char* argv[]) {
         printf("Error opening the file, make sure it exists");
         return 1;
     }
-
+    //==========================
     //Logic for rotating cypher
+    //==========================
+
     if(cypherType == ROTATING) {
         int realKey = atoi(key);
         if(realKey == 0) {
@@ -73,6 +73,10 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+
+    //==========================
+    //Logic for Vigenere cypher
+    //==========================
 
     if(cypherType == VIGENERE) {
         int keyLength = strlen(key);
@@ -103,7 +107,14 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+        }
     }
+
+    //==========================
+    //Logic for Transposition cypher
+    //==========================
+    if(cypherType == TRANSPOSITION) {
+        printf("Transposition cypher is not implemented yet");
     }
 
     fclose(file);
